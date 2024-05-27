@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">TEA1</string>
+    <string name="nom">Pseudo :</string>
+    <string name="entrez_votre_nom">Entrez votre nom</string>
+    <string name="ok">OK</string>
+    <string name="compte">Compte</string>
+    <string name="preferences">Préférences</string>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<EditTextPreference
+    android:key="pseudo"
+    android:title="Pseudo"
+    android:summary="Pseudo actuel: "
+    android:defaultValue=""
+    android:inputType="text"
+    android:singleLine="true"/>
+
+    <SwitchPreference
+        android:key="background_color_switch"
+        android:title="Arrière-plan"
+        android:summary="Changer la couleur d'arrière-plan"
+        android:defaultValue="false" />
+</PreferenceScreen>

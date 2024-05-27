@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/main"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@color/white"
+tools:context="com.example.tea1.MainActivity">
+
+<TextView
+    android:id="@+id/textView"
+    android:layout_width="wrap_content"
+    android:layout_height="50dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:gravity="center"
+    android:text="@string/nom"
+    android:textSize="20sp"
+    app:layout_constraintBottom_toBottomOf="@+id/edtNom"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+<EditText
+    android:id="@+id/edtNom"
+    android:layout_width="0dp"
+    android:layout_height="50dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="8dp"
+    android:background="@drawable/border"
+    android:ems="10"
+    android:inputType="text"
+    android:padding="3dp"
+    android:text=""
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toEndOf="@+id/textView"
+    app:layout_constraintTop_toBottomOf="@+id/textView"
+    app:layout_constraintBottom_toTopOf="@+id/button"
+    android:autofillHints="@string/entrez_votre_nom" />
+
+<Button
+    android:id="@+id/button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="8dp"
+    android:text="@string/ok"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/edtNom" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
