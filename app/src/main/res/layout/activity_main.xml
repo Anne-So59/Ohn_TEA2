@@ -21,25 +21,57 @@ tools:context="com.example.tea1.MainActivity">
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
-<EditText
-    android:id="@+id/edtNom"
-    android:layout_width="0dp"
-    android:layout_height="50dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginEnd="8dp"
-    android:background="@drawable/border"
-    android:ems="10"
-    android:inputType="text"
-    android:padding="3dp"
-    android:text=""
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toEndOf="@+id/textView"
-    app:layout_constraintTop_toBottomOf="@+id/textView"
-    app:layout_constraintBottom_toTopOf="@+id/button"
-    android:autofillHints="@string/entrez_votre_nom" />
+    <EditText
+        android:id="@+id/edtNom"
+        android:layout_width="286dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:autofillHints="@string/entrez_votre_nom"
+        android:background="@drawable/border"
+        android:ems="10"
+        android:inputType="text"
+        android:padding="3dp"
+        android:text=""
+        app:layout_constraintBottom_toTopOf="@+id/edtMdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-<Button
+    <TextView
+        android:id="@+id/textViewMdp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Mot de passe : "
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@+id/edtNom"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <EditText
+        android:id="@+id/edtMdp"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/border"
+        android:ems="10"
+        android:hint="Entrez votre mot de passe"
+        android:inputType="text"
+        android:padding="3dp"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/textViewMdp"
+        app:layout_constraintTop_toBottomOf="@+id/edtNom" />
+
+    <Button
     android:id="@+id/button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -47,7 +79,7 @@ tools:context="com.example.tea1.MainActivity">
     android:layout_marginEnd="8dp"
     android:text="@string/ok"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/edtNom" />
+    app:layout_constraintTop_toBottomOf="@+id/edtMdp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

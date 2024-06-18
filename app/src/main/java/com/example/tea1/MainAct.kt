@@ -2,6 +2,8 @@ package com.example.tea1
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -14,13 +16,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.preference.PreferenceManager
 import com.google.gson.Gson
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     var refBtnOK: Button? = null
     var refEdtNom: EditText? = null
-    lateinit var sharedPreferences: SharedPreferences
+    var refEdtMdp: EditText? = null
+    private lateinit var sharedPreferences: SharedPreferences
 
     fun alerter(s: String?) {
         Log.i(PMR, s!!)
@@ -32,21 +39,22 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         this.enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val urlApi = sharedPreferences.getString("api_base_url", "http://tomnab.fr/todo-api")
+
         refBtnOK = findViewById(R.id.button)
         refEdtNom = findViewById(R.id.edtNom)
+        refEdtMdp = findViewById(R.id.edtMdp)
 
-        //tentative de remplissage automatique du champ de saisie
-        sharedPreferences = getSharedPreferences("shared_prefs", MODE_PRIVATE)
+        //remplissage automatique du champ de saisie
         val pseudoEnMemoire = sharedPreferences.getString("pseudo", "")
         refEdtNom?.setText(pseudoEnMemoire)
 
-        // tentative de gestion de l'arrière-plan sur la MainActivity
-        /*val arrierePlan = sharedPreferences.getBoolean("background_color_switch", false)
-        if (arrierePlan) {
-            findViewById<ConstraintLayout>(R.id.main).setBackgroundColor(Color.parseColor("#FFD700"))
-        } else {
-            findViewById<ConstraintLayout>(R.id.main).setBackgroundColor(Color.WHITE)
-        }*/
+
+        //vérification du réseau
+        val isNetworkAvailable = verifReseau()
+        refBtnOK?.isEnabled = isNetworkAvailable
 
         refBtnOK?.setOnClickListener(this)
 
@@ -60,23 +68,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun defaultProfile(pseudo: String): ProfilListeToDo {
-        val item1 = ItemToDo("Item 1")
-        val item2 = ItemToDo("Item 2")
-        val item3 = ItemToDo("Item 3")
-
-        val liste1 = ListeToDo()
-        liste1.titreListeToDo = "Liste 1"
-        liste1.changerLesItems(listOf(item1, item2, item3))
-
-        val liste2 = ListeToDo()
-        liste2.titreListeToDo = "Liste 2"
-        liste2.changerLesItems(listOf(item1, item2, item3))
-
-        val liste3 = ListeToDo()
-        liste3.titreListeToDo = "Liste 3"
-        liste3.changerLesItems(listOf(item1, item2, item3))
-
-        val profile = ProfilListeToDo(pseudo, listOf(liste1, liste2, liste3))
+        val profile = ProfilListeToDo(pseudo, emptyList())
 
         val gson = Gson()
         val json = gson.toJson(profile)
@@ -92,9 +84,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             val pseudo = refEdtNom!!.text.toString()
             alerter("contenu : $pseudo")
 
+            val mdp = refEdtMdp!!.text.toString()
+            alerter("contenu : $mdp")
+
             val editor = sharedPreferences.edit()
             editor.putString("pseudo", pseudo)
             editor.apply()
+
+            if (pseudo.isNotEmpty() && mdp.isNotEmpty()) {
+                authentificationUser(pseudo, mdp)
+            } else {
+                Toast.makeText(this, "Pseudo et mdp manquants", Toast.LENGTH_SHORT).show()
+            }
 
             val profile = defaultProfile(pseudo)
 
@@ -104,11 +105,37 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 putExtra("pseudo", pseudo)
                 putStringArrayListExtra("mesListes", mesListes)
             }
-            startActivity(myIntent)
         }
     }
 
+    private fun authentificationUser(user: String, password: String) {
+        val call = DataProvider.apiService.authenticateUser(user, password)
+        call.enqueue(object : Callback<AuthenticateDataClass> {
+            override fun onResponse(call: Call<AuthenticateDataClass>, response: Response<AuthenticateDataClass>) {
+                if (response.isSuccessful) {
+                    val authenticateData = response.body()
+                    val hash = authenticateData?.hash ?: ""
+                    Toast.makeText(this@MainActivity, "Hash: $hash", Toast.LENGTH_SHORT).show()
 
+                    // sauvegarde du hash dans les préférences partagées
+                    sharedPreferences.edit().putString("hash", hash).apply()
+
+                    val profile = defaultProfile(user)
+                    val mesListes = ArrayList(profile.mesListesToDo.map { it.titreListeToDo })
+
+                    val myIntent = Intent(this@MainActivity, ChoixListActivity::class.java).apply {
+                        putExtra("pseudo", user)
+                        putStringArrayListExtra("mesListes", mesListes)
+                    }
+                    startActivity(myIntent)
+                }
+            }
+
+            override fun onFailure(call: Call<AuthenticateDataClass>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Echec de la requête: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
@@ -126,7 +153,33 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    fun verifReseau(): Boolean {
+        // On vérifie si le réseau est disponible,
+        // si oui on change le statut du bouton de connexion
+        val cnMngr = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val netInfo = cnMngr.activeNetworkInfo
+
+        var sType = "Aucun réseau détecté"
+        var bStatut = false
+        if (netInfo != null) {
+            val netState = netInfo.state
+
+            if (netState.compareTo(NetworkInfo.State.CONNECTED) == 0) {
+                bStatut = true
+                val netType = netInfo.type
+                when (netType) {
+                    ConnectivityManager.TYPE_MOBILE -> sType = "Réseau mobile détecté"
+                    ConnectivityManager.TYPE_WIFI -> sType = "Réseau wifi détecté"
+                }
+            }
+        }
+
+        Log.i("PMR", sType!!)
+        return bStatut
+    }
+
     companion object {
         private const val PMR = "pmr2024"
     }
+
 }
