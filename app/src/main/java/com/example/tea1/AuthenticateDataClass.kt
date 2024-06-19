@@ -7,3 +7,4 @@ class AuthenticateDataClass {
     var apiname: String = "todo"
     var hash:String = ""
 }
+

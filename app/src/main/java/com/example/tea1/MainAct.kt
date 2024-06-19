@@ -53,8 +53,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
 
         //vérification du réseau
-        val isNetworkAvailable = verifReseau()
-        refBtnOK?.isEnabled = isNetworkAvailable
+        val reseau = verifReseau()
+        refBtnOK?.isEnabled = reseau
 
         refBtnOK?.setOnClickListener(this)
 
